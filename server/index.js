@@ -3,6 +3,7 @@ import cors from 'cors'
 import { LiveDataService } from './services/liveData.js'
 import { RecordsService } from './services/records.js'
 import { EventsConfig } from './config/events.js'
+import { DistanceRecords } from './config/records.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -71,6 +72,83 @@ app.get('/api/skater/:skaterId', async (req, res) => {
     console.error('Error fetching skater info:', error.message)
     res.status(500).json({ error: 'Failed to fetch skater info' })
   }
+})
+
+// Get distance records (WR, TR, OR)
+app.get('/api/distance-records/:eventId/:distance', (req, res) => {
+  try {
+    const { eventId, distance } = req.params
+    const { gender = 'men' } = req.query
+    
+    const event = EventsConfig.getEvent(eventId)
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' })
+    }
+
+    const records = DistanceRecords.getDistanceRecords(
+      parseInt(distance),
+      gender,
+      event.location
+    )
+
+    if (!records) {
+      return res.status(404).json({ error: 'No records found for this distance' })
+    }
+
+    // Include Olympic record only for Olympic events
+    const isOlympic = event.isOlympic || DistanceRecords.isOlympicEvent(event.name)
+    
+    res.json({
+      distance: parseInt(distance),
+      gender,
+      venue: event.location,
+      isOlympicEvent: isOlympic,
+      worldRecord: records.worldRecord,
+      trackRecord: records.trackRecord,
+      olympicRecord: isOlympic ? records.olympicRecord : null
+    })
+  } catch (error) {
+    console.error('Error fetching distance records:', error.message)
+    res.status(500).json({ error: 'Failed to fetch distance records' })
+  }
+})
+
+// Clear caches and force refresh
+app.post('/api/refresh', (req, res) => {
+  try {
+    const { type } = req.body || {}
+    
+    if (type === 'records' || !type) {
+      // Clear skater records cache
+      recordsService.cache.clear()
+      console.log('Records cache cleared')
+    }
+    
+    if (type === 'live' || !type) {
+      // Clear live data cache
+      liveDataService.cache.clear()
+      console.log('Live data cache cleared')
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Cache cleared',
+      clearedAt: new Date().toISOString()
+    })
+  } catch (error) {
+    console.error('Error clearing cache:', error.message)
+    res.status(500).json({ error: 'Failed to clear cache' })
+  }
+})
+
+// Get cache status
+app.get('/api/status', (req, res) => {
+  res.json({
+    recordsCacheSize: recordsService.cache.size,
+    liveCacheSize: liveDataService.cache.size,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  })
 })
 
 app.listen(PORT, () => {

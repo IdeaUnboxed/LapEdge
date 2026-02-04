@@ -6,7 +6,8 @@ const defaultSettings = {
   updateInterval: 3000, // 3 seconds
   defaultReference: 'leader',
   compactMode: false,
-  showCharts: true
+  showCharts: true,
+  gender: 'men' // 'men' or 'women'
 }
 
 export function useSettings() {

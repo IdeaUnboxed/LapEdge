@@ -15,10 +15,11 @@ function App() {
   const [reference, setReference] = useState('leader') // leader, pr, seasonBest, even
 
   const { settings, updateSettings } = useSettings()
-  const { raceData, standings, loading, error } = useLiveData(
+  const { raceData, standings, distanceRecords, loading, error } = useLiveData(
     selectedEvent?.id,
     selectedDistance,
-    settings.updateInterval
+    settings.updateInterval,
+    settings.gender || 'men'
   )
 
   const handleEventSelect = useCallback((event) => {
@@ -81,6 +82,7 @@ function App() {
             <RaceView
               raceData={raceData}
               standings={standings}
+              distanceRecords={distanceRecords}
               distance={selectedDistance}
               reference={reference}
               onReferenceChange={setReference}

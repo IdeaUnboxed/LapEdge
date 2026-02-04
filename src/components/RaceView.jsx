@@ -1,10 +1,12 @@
 import React from 'react'
 import { SkaterCard } from './SkaterCard'
 import { RaceChart } from './RaceChart'
+import { RecordTimesPanel } from './RecordTimesPanel'
 
 export function RaceView({
   raceData,
   standings,
+  distanceRecords,
   distance,
   reference,
   onReferenceChange,
@@ -88,6 +90,15 @@ export function RaceView({
           </button>
         </div>
       </div>
+
+      {/* Reference times panel */}
+      <RecordTimesPanel
+        distance={distance}
+        standings={standings?.standings}
+        skaters={currentRace.skaters}
+        distanceRecords={distanceRecords}
+        isOlympicEvent={distanceRecords?.isOlympicEvent}
+      />
 
       <div className="skaters-grid">
         {currentRace.skaters?.map((skater, index) => (

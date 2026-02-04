@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-export function useLiveData(eventId, distance, updateInterval = 3000) {
+export function useLiveData(eventId, distance, updateInterval = 3000, gender = 'men') {
   const [raceData, setRaceData] = useState(null)
   const [standings, setStandings] = useState(null)
+  const [distanceRecords, setDistanceRecords] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -54,6 +55,28 @@ export function useLiveData(eventId, distance, updateInterval = 3000) {
     }
   }, [eventId, distance])
 
+  // Fetch distance records (static, no polling needed)
+  useEffect(() => {
+    if (!eventId || !distance) {
+      setDistanceRecords(null)
+      return
+    }
+
+    const fetchRecords = async () => {
+      try {
+        const response = await fetch(`/api/distance-records/${eventId}/${distance}?gender=${gender}`)
+        if (response.ok) {
+          const records = await response.json()
+          setDistanceRecords(records)
+        }
+      } catch (err) {
+        console.warn('Failed to fetch distance records:', err)
+      }
+    }
+
+    fetchRecords()
+  }, [eventId, distance, gender])
+
   // Initial fetch
   useEffect(() => {
     if (eventId && distance) {
@@ -90,6 +113,7 @@ export function useLiveData(eventId, distance, updateInterval = 3000) {
   return {
     raceData,
     standings,
+    distanceRecords,
     loading,
     error,
     refresh

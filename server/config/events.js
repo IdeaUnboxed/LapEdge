@@ -2,6 +2,17 @@
 export const EventsConfig = {
   events: [
     {
+      id: 'owg-milano-2026',
+      name: 'Olympic Winter Games Milano Cortina 2026',
+      location: 'Milano Speed Skating Stadium',
+      country: 'ITA',
+      startDate: '2026-02-06',
+      endDate: '2026-02-21',
+      source: 'isuresults',
+      sourceUrl: 'https://live.isuresults.eu',
+      isOlympic: true
+    },
+    {
       id: 'wc-heerenveen-2024',
       name: 'World Cup Heerenveen',
       location: 'Thialf, Heerenveen',
