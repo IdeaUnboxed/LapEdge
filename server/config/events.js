@@ -6,39 +6,60 @@ export const EventsConfig = {
       name: 'Olympic Winter Games Milano Cortina 2026',
       location: 'Milano Speed Skating Stadium',
       country: 'ITA',
-      startDate: '2026-02-06',
-      endDate: '2026-02-21',
+      startDate: '2026-02-06', // Event opens
+      startTime: '16:00', // First event: 3000m Women on Feb 7
+      endDate: '2026-02-22',
+      timezone: 'Europe/Rome',
       source: 'isuresults',
       sourceUrl: 'https://live.isuresults.eu',
+      isuEventId: '2026_ITA_0003', // ISU event identifier
       isOlympic: true
     },
     {
-      id: 'wc-heerenveen-2024',
+      id: 'wc-heerenveen-2026',
       name: 'World Cup Heerenveen',
       location: 'Thialf, Heerenveen',
       country: 'NED',
-      startDate: '2024-12-13',
-      endDate: '2024-12-15',
+      startDate: '2026-01-17',
+      startTime: '14:00',
+      endDate: '2026-01-19',
+      timezone: 'Europe/Amsterdam',
       source: 'isuresults',
       sourceUrl: 'https://live.isuresults.eu'
     },
     {
-      id: 'wc-calgary-2024',
+      id: 'wc-calgary-2026',
       name: 'World Cup Calgary',
       location: 'Olympic Oval, Calgary',
       country: 'CAN',
-      startDate: '2024-12-06',
-      endDate: '2024-12-08',
+      startDate: '2026-01-24',
+      startTime: '11:00',
+      endDate: '2026-01-26',
+      timezone: 'America/Edmonton',
       source: 'isuresults',
       sourceUrl: 'https://live.isuresults.eu'
     },
     {
-      id: 'nk-sprint-2024',
-      name: 'NK Sprint',
+      id: 'ek-allround-2026',
+      name: 'EK Allround & Sprint',
       location: 'Thialf, Heerenveen',
       country: 'NED',
-      startDate: '2024-12-21',
-      endDate: '2024-12-22',
+      startDate: '2026-01-10',
+      startTime: '12:30',
+      endDate: '2026-01-12',
+      timezone: 'Europe/Amsterdam',
+      source: 'isuresults',
+      sourceUrl: 'https://live.isuresults.eu'
+    },
+    {
+      id: 'nk-afstanden-2026',
+      name: 'NK Afstanden',
+      location: 'Thialf, Heerenveen',
+      country: 'NED',
+      startDate: '2025-12-26',
+      startTime: '13:00',
+      endDate: '2025-12-30',
+      timezone: 'Europe/Amsterdam',
       source: 'schaatsen',
       sourceUrl: 'https://liveresults.schaatsen.nl'
     }

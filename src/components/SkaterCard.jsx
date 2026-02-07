@@ -2,7 +2,7 @@ import React from 'react'
 import { formatTime, formatDiff } from '../utils/timeFormat'
 import { calculateVirtualRank, predictFinishTime } from '../utils/calculations'
 
-export function SkaterCard({ skater, distance, reference, standings, distanceConfig }) {
+export function SkaterCard({ skater, distance, reference, standings, distanceConfig, leader }) {
   const virtualRank = calculateVirtualRank(skater, standings)
   const prediction = distance >= 1500 ? predictFinishTime(skater, distance, distanceConfig) : null
 
@@ -31,7 +31,7 @@ export function SkaterCard({ skater, distance, reference, standings, distanceCon
           </thead>
           <tbody>
             {skater.laps?.map((lap, index) => {
-              const diff = calculateDiff(lap, skater, reference, standings, index)
+              const diff = calculateDiff(lap, skater, reference, standings, index, leader)
               return (
                 <tr key={index}>
                   <td className="lap-number">{lap.lap}</td>
@@ -79,13 +79,17 @@ function getReferenceLabel(reference) {
   return labels[reference] || 'Verschil'
 }
 
-function calculateDiff(lap, skater, reference, standings, lapIndex) {
+function calculateDiff(lap, skater, reference, standings, lapIndex, leader) {
   if (!lap || lap.cumulative === undefined) return null
 
   switch (reference) {
     case 'leader':
+      // Use leader's actual passage times for comparison
+      if (leader?.passageTimes && leader.passageTimes[lapIndex] !== undefined) {
+        return lap.cumulative - leader.passageTimes[lapIndex]
+      }
+      // Fallback to standings if no leader passage times
       if (!standings || standings.length === 0) return null
-      // Compare cumulative time to leader's pace
       const leaderTime = standings[0]?.time
       if (!leaderTime) return null
       const totalLaps = skater.totalLaps || skater.laps?.length || 1
@@ -120,7 +124,9 @@ function calculateDiff(lap, skater, reference, standings, lapIndex) {
 
 function getDiffClass(diff) {
   if (diff === null || diff === undefined) return 'diff-neutral'
-  if (diff > 0.1) return 'diff-positive'
-  if (diff < -0.1) return 'diff-negative'
+  // Negatief verschil = sneller = goed (groen)
+  // Positief verschil = langzamer = slecht (rood)
+  if (diff < -0.1) return 'diff-positive'  // sneller = groen
+  if (diff > 0.1) return 'diff-negative'   // langzamer = rood
   return 'diff-neutral'
 }

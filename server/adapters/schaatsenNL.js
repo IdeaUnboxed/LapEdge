@@ -7,8 +7,20 @@ export class SchaatsenNLAdapter {
   }
 
   async fetchRaceData(event, distance) {
+    const now = new Date()
+    const startDate = new Date(event.startDate)
+    const endDate = new Date(event.endDate)
+    endDate.setDate(endDate.getDate() + 1)
+
+    if (now < startDate) {
+      return this.getNotStartedData(event, distance)
+    }
+
+    if (now > endDate) {
+      return this.getEndedData(event, distance)
+    }
+
     try {
-      // Schaatsen.nl typically uses different URL structure
       const url = `${event.sourceUrl}/api/race/${distance}`
       const response = await fetch(url, {
         headers: {
@@ -23,13 +35,20 @@ export class SchaatsenNLAdapter {
         return this.transformData(data)
       }
     } catch (error) {
-      console.log('Using demo data for Schaatsen.nl')
+      console.log('No live data available for Schaatsen.nl')
     }
 
-    return this.getDemoRaceData(distance)
+    return this.getWaitingData(event, distance)
   }
 
   async fetchStandings(event, distance) {
+    const now = new Date()
+    const startDate = new Date(event.startDate)
+
+    if (now < startDate) {
+      return { distance, standings: [] }
+    }
+
     try {
       const url = `${event.sourceUrl}/api/standings/${distance}`
       const response = await fetch(url, {
@@ -44,10 +63,54 @@ export class SchaatsenNLAdapter {
         return await response.json()
       }
     } catch (error) {
-      console.log('Using demo standings for Schaatsen.nl')
+      console.log('No standings available for Schaatsen.nl')
     }
 
-    return this.getDemoStandings(distance)
+    return { distance, standings: [] }
+  }
+
+  getNotStartedData(event, distance) {
+    const startDate = new Date(event.startDate)
+    const startDateTime = event.startTime 
+      ? new Date(`${event.startDate}T${event.startTime}:00`)
+      : startDate
+    
+    return {
+      status: 'not_started',
+      message: `${event.name} begint op ${startDate.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}`,
+      event: {
+        name: event.name,
+        location: event.location,
+        startDate: event.startDate,
+        startTime: event.startTime || '12:00',
+        startDateTime: startDateTime.toISOString(),
+        endDate: event.endDate,
+        timezone: event.timezone || 'Europe/Amsterdam'
+      },
+      currentRace: null
+    }
+  }
+
+  getEndedData(event, distance) {
+    return {
+      status: 'ended',
+      message: `${event.name} is afgelopen`,
+      event: {
+        name: event.name,
+        location: event.location,
+        startDate: event.startDate,
+        endDate: event.endDate
+      },
+      currentRace: null
+    }
+  }
+
+  getWaitingData(event, distance) {
+    return {
+      status: 'waiting',
+      message: 'Wachten op volgende rit...',
+      currentRace: null
+    }
   }
 
   transformData(rawData) {

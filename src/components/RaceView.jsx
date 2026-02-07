@@ -2,6 +2,7 @@ import React from 'react'
 import { SkaterCard } from './SkaterCard'
 import { RaceChart } from './RaceChart'
 import { RecordTimesPanel } from './RecordTimesPanel'
+import { Countdown } from './Countdown'
 
 export function RaceView({
   raceData,
@@ -31,17 +32,91 @@ export function RaceView({
     )
   }
 
+  // Event not started yet
+  if (raceData?.status === 'not_started') {
+    const event = raceData.event
+    return (
+      <div className="race-view">
+        <div className="event-status not-started">
+          <div className="status-icon">📅</div>
+          <h2>{distance}m</h2>
+          <p className="status-message">{raceData.message}</p>
+          {event && (
+            <>
+              <div className="event-details">
+                <p>{event.location}</p>
+              </div>
+              <div className="start-time">
+                <span>Starttijd:</span>
+                <span className="start-time-value">{event.startTime}</span>
+                <span>({event.timezone?.split('/')[1] || 'lokale tijd'})</span>
+              </div>
+              {event.startDateTime && (
+                <Countdown targetDate={event.startDateTime} />
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Still show records for reference */}
+        {distanceRecords && (
+          <RecordTimesPanel
+            distance={distance}
+            standings={[]}
+            skaters={[]}
+            distanceRecords={distanceRecords}
+            isOlympicEvent={distanceRecords?.isOlympicEvent}
+          />
+        )}
+      </div>
+    )
+  }
+
+  // Event ended
+  if (raceData?.status === 'ended') {
+    return (
+      <div className="race-view">
+        <div className="event-status ended">
+          <div className="status-icon">🏁</div>
+          <h2>{distance}m</h2>
+          <p className="status-message">{raceData.message}</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Waiting for next race
   if (!raceData || raceData.status === 'waiting') {
     return (
       <div className="race-view">
-        <div className="race-header">
-          <div className="race-info">
-            <h2>{distance}m</h2>
-            <p className="race-pair">Wachten op volgende rit...</p>
-          </div>
+        <div className="event-status waiting">
+          <div className="status-icon">⏳</div>
+          <h2>{distance}m</h2>
+          <p className="status-message">{raceData?.message || 'Wachten op volgende rit...'}</p>
+          {raceData?.isuUrl && (
+            <a 
+              href={raceData.isuUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="isu-link"
+            >
+              Bekijk lap times op ISU Live
+            </a>
+          )}
         </div>
 
-        {standings && standings.standings && (
+        {/* Show records while waiting */}
+        {distanceRecords && (
+          <RecordTimesPanel
+            distance={distance}
+            standings={standings?.standings || []}
+            skaters={[]}
+            distanceRecords={distanceRecords}
+            isOlympicEvent={distanceRecords?.isOlympicEvent}
+          />
+        )}
+
+        {standings && standings.standings && standings.standings.length > 0 && (
           <RaceChart
             standings={standings.standings}
             distance={distance}
@@ -109,6 +184,7 @@ export function RaceView({
             reference={reference}
             standings={standings?.standings}
             distanceConfig={raceData.distanceConfig}
+            leader={currentRace.leader}
           />
         ))}
       </div>
@@ -119,6 +195,8 @@ export function RaceView({
           standings={standings?.standings}
           distance={distance}
           reference={reference}
+          top3={currentRace.top3}
+          leader={currentRace.leader}
         />
       )}
     </div>

@@ -29,7 +29,8 @@ app.get('/api/events/:eventId/distances', (req, res) => {
 app.get('/api/live/:eventId/:distance', async (req, res) => {
   try {
     const { eventId, distance } = req.params
-    const data = await liveDataService.getRaceData(eventId, parseInt(distance))
+    const gender = req.query.gender || 'women'  // 'men' or 'women'
+    const data = await liveDataService.getRaceData(eventId, parseInt(distance), gender)
     res.json(data)
   } catch (error) {
     console.error('Error fetching live data:', error.message)
@@ -41,7 +42,8 @@ app.get('/api/live/:eventId/:distance', async (req, res) => {
 app.get('/api/standings/:eventId/:distance', async (req, res) => {
   try {
     const { eventId, distance } = req.params
-    const standings = await liveDataService.getStandings(eventId, parseInt(distance))
+    const gender = req.query.gender || 'women'
+    const standings = await liveDataService.getStandings(eventId, parseInt(distance), gender)
     res.json(standings)
   } catch (error) {
     console.error('Error fetching standings:', error.message)

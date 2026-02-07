@@ -28,8 +28,8 @@ export function useLiveData(eventId, distance, updateInterval = 3000, gender = '
     try {
       // Fetch race data and standings in parallel
       const [raceResponse, standingsResponse] = await Promise.all([
-        fetch(`/api/live/${eventId}/${distance}`, { signal }),
-        fetch(`/api/standings/${eventId}/${distance}`, { signal })
+        fetch(`/api/live/${eventId}/${distance}?gender=${gender}`, { signal }),
+        fetch(`/api/standings/${eventId}/${distance}?gender=${gender}`, { signal })
       ])
 
       if (signal.aborted) return
@@ -53,7 +53,7 @@ export function useLiveData(eventId, distance, updateInterval = 3000, gender = '
       console.error('Failed to fetch live data:', err)
       setError(err.message)
     }
-  }, [eventId, distance])
+  }, [eventId, distance, gender])
 
   // Fetch distance records (static, no polling needed)
   useEffect(() => {

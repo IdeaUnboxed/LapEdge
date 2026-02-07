@@ -245,11 +245,55 @@ html, body {
   color: var(--text-muted);
 }
 
+/* Gender selector */
+.gender-selector {
+  display: flex;
+  gap: 4px;
+  padding: 0 12px 12px 12px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
+}
+
+.gender-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gender-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.gender-btn.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: white;
+}
+
 .distance-item {
   justify-content: center;
   font-weight: 600;
   font-family: var(--font-mono);
   font-size: 14px;
+  color: var(--accent-yellow);
+}
+
+.distance-item:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.distance-item.active {
+  background: var(--accent-blue);
+  color: white;
 }
 
 /* Standings Panel */
@@ -306,6 +350,18 @@ html, body {
 .standing-diff {
   font-size: 10px;
   color: var(--accent-red);
+}
+
+/* Demo Banner */
+.demo-banner {
+  background: linear-gradient(90deg, var(--accent-orange), var(--accent-yellow));
+  color: #000;
+  text-align: center;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  margin-bottom: 4px;
 }
 
 /* Race View */
@@ -465,11 +521,11 @@ html, body {
 }
 
 .diff-positive {
-  color: var(--accent-red);
+  color: var(--accent-green);  /* sneller = goed = groen */
 }
 
 .diff-negative {
-  color: var(--accent-green);
+  color: var(--accent-red);    /* langzamer = slecht = rood */
 }
 
 .diff-neutral {
@@ -658,9 +714,30 @@ html, body {
 }
 
 .chart-title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.chart-legend-help {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.legend-leader {
+  color: #fbbf24;
+}
+
+.legend-current {
+  color: #3b82f6;
+}
+
+.legend-top3 {
+  color: #94a3b8;
 }
 
 /* Settings Modal */
@@ -766,6 +843,160 @@ html, body {
   font-size: 13px;
   min-width: 40px;
   text-align: right;
+}
+
+/* Event Status States */
+.event-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.event-status .status-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.event-status h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.event-status .status-message {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.event-status .event-details {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.event-status.not-started {
+  border-color: var(--accent-blue);
+}
+
+.event-status.not-started .status-message {
+  color: var(--accent-blue);
+}
+
+.event-status.ended {
+  border-color: var(--text-muted);
+}
+
+.event-status.waiting {
+  border-color: var(--accent-yellow);
+}
+
+.event-status.waiting .status-message {
+  color: var(--accent-yellow);
+}
+
+.isu-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: var(--accent-blue);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.isu-link:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.isu-link::before {
+  content: '↗';
+}
+
+/* Countdown Timer */
+.countdown {
+  margin-top: 20px;
+  padding: 16px 24px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.countdown-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.countdown-timer {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+
+.countdown-unit {
+  display: flex;
+  align-items: baseline;
+}
+
+.countdown-value {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.countdown-suffix {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+.countdown-separator {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: 0 4px;
+}
+
+.countdown.finished .countdown-label {
+  color: var(--accent-green);
+  font-size: 14px;
+}
+
+/* Start time display */
+.start-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.start-time-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 /* Loading & Error States */

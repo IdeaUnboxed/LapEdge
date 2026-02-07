@@ -9,7 +9,7 @@ export class LiveDataService {
       schaatsen: new SchaatsenNLAdapter()
     }
     this.cache = new Map()
-    this.cacheTimeout = 2000 // 2 seconds cache
+    this.cacheTimeout = 5000 // 5 seconds cache to reduce ISU server load
   }
 
   getAdapter(eventId) {
@@ -24,8 +24,8 @@ export class LiveDataService {
     return adapter
   }
 
-  getCacheKey(eventId, distance, type) {
-    return `${eventId}-${distance}-${type}`
+  getCacheKey(eventId, distance, type, gender = 'women') {
+    return `${eventId}-${distance}-${gender}-${type}`
   }
 
   getFromCache(key) {
@@ -43,8 +43,8 @@ export class LiveDataService {
     })
   }
 
-  async getRaceData(eventId, distance) {
-    const cacheKey = this.getCacheKey(eventId, distance, 'race')
+  async getRaceData(eventId, distance, gender = 'women') {
+    const cacheKey = this.getCacheKey(eventId, distance, 'race', gender)
     const cached = this.getFromCache(cacheKey)
     if (cached) return cached
 
@@ -52,7 +52,7 @@ export class LiveDataService {
     const event = EventsConfig.getEvent(eventId)
     const distanceConfig = EventsConfig.getDistanceConfig(distance)
 
-    const data = await adapter.fetchRaceData(event, distance)
+    const data = await adapter.fetchRaceData(event, distance, gender)
 
     // Normalize and enrich data
     const normalized = this.normalizeRaceData(data, distanceConfig)
@@ -61,24 +61,32 @@ export class LiveDataService {
     return normalized
   }
 
-  async getStandings(eventId, distance) {
-    const cacheKey = this.getCacheKey(eventId, distance, 'standings')
+  async getStandings(eventId, distance, gender = 'women') {
+    const cacheKey = this.getCacheKey(eventId, distance, 'standings', gender)
     const cached = this.getFromCache(cacheKey)
     if (cached) return cached
 
     const adapter = this.getAdapter(eventId)
     const event = EventsConfig.getEvent(eventId)
 
-    const standings = await adapter.fetchStandings(event, distance)
+    const standings = await adapter.fetchStandings(event, distance, gender)
     this.setCache(cacheKey, standings)
 
     return standings
   }
 
   normalizeRaceData(data, distanceConfig) {
+    // Preserve special statuses (not_started, ended, waiting with event info)
     if (!data || !data.currentRace) {
+      if (data?.status === 'not_started' || data?.status === 'ended') {
+        return data  // Return as-is with event/competition info
+      }
       return {
-        status: 'waiting',
+        status: data?.status || 'waiting',
+        message: data?.message,
+        event: data?.event,
+        competition: data?.competition,
+        isuUrl: data?.isuUrl,
         currentRace: null,
         standings: []
       }

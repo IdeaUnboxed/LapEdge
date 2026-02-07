@@ -31,6 +31,10 @@ function App() {
     setSelectedDistance(distance)
   }, [])
 
+  const handleGenderChange = useCallback((gender) => {
+    updateSettings({ ...settings, gender })
+  }, [settings, updateSettings])
+
   return (
     <div className="app">
       <Header
@@ -50,6 +54,8 @@ function App() {
               eventId={selectedEvent.id}
               selectedDistance={selectedDistance}
               onSelect={handleDistanceSelect}
+              gender={settings.gender || 'men'}
+              onGenderChange={handleGenderChange}
             />
           )}
 

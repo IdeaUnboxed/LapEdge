@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-export function DistanceSelector({ eventId, selectedDistance, onSelect }) {
+export function DistanceSelector({ eventId, selectedDistance, onSelect, gender, onGenderChange }) {
   const [distances, setDistances] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -51,6 +51,22 @@ export function DistanceSelector({ eventId, selectedDistance, onSelect }) {
     <div className="panel">
       <div className="panel-header">
         <span className="panel-title">Afstanden</span>
+      </div>
+
+      {/* Gender selector */}
+      <div className="gender-selector">
+        <button
+          className={`gender-btn ${gender === 'men' ? 'active' : ''}`}
+          onClick={() => onGenderChange('men')}
+        >
+          Heren
+        </button>
+        <button
+          className={`gender-btn ${gender === 'women' ? 'active' : ''}`}
+          onClick={() => onGenderChange('women')}
+        >
+          Dames
+        </button>
       </div>
 
       <div className="distance-list">

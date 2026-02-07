@@ -161,6 +161,7 @@ export function SettingsPanel({ settings, onUpdate, onClose }) {
             </label>
           </div>
 
+
           <div className="setting-group">
             <label className="setting-label">Data verversen</label>
             <p className="setting-description">
