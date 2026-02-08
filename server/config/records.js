@@ -3,122 +3,124 @@
 // Times in seconds
 
 export const DistanceRecords = {
-  // Men's records
+  // Men's records (updated Feb 2026)
   men: {
     500: {
-      worldRecord: { time: 33.61, holder: 'Viktor Mushtakov', country: 'RUS', date: '2024-03-09', venue: 'Calgary' },
-      olympicRecord: { time: 34.32, holder: 'Havard Lorentzen', country: 'NOR', date: '2018-02-19', venue: 'Pyeongchang' },
+      worldRecord: { time: 33.61, holder: 'Pavel Kulizhnikov', country: 'RUS', date: '2019-03-09', venue: 'Salt Lake City' },
+      olympicRecord: { time: 34.32, holder: 'Gao Tingyu', country: 'CHN', date: '2022-02-12', venue: 'Beijing' },
       trackRecords: {
-        'thialf': { time: 34.00, holder: 'Pavel Kulizhnikov', country: 'RUS', date: '2020-02-16' },
-        'calgary': { time: 33.61, holder: 'Viktor Mushtakov', country: 'RUS', date: '2024-03-09' },
-        'salt-lake': { time: 33.98, holder: 'Jeremy Wotherspoon', country: 'CAN', date: '2007-11-09' },
+        'thialf': { time: 33.90, holder: 'Jordan Stolz', country: 'USA', date: '2025-12-07' },
+        'calgary': { time: 33.70, holder: 'Jordan Stolz', country: 'USA', date: '2024-01-27' },
+        'salt-lake': { time: 33.61, holder: 'Pavel Kulizhnikov', country: 'RUS', date: '2019-03-09' },
         'inzell': { time: 34.15, holder: 'Pavel Kulizhnikov', country: 'RUS', date: '2019-02-08' },
         'milano': null // Nieuwe baan OWG 2026
       }
     },
     1000: {
-      worldRecord: { time: 65.36, holder: 'Pavel Kulizhnikov', country: 'RUS', date: '2020-02-15', venue: 'Salt Lake City' },
-      olympicRecord: { time: 68.31, holder: 'Gerard van Velde', country: 'NED', date: '2002-02-16', venue: 'Salt Lake City' },
+      worldRecord: { time: 65.37, holder: 'Jordan Stolz', country: 'USA', date: '2024-01-26', venue: 'Salt Lake City' },
+      olympicRecord: { time: 67.18, holder: 'Gerard van Velde', country: 'NED', date: '2002-02-16', venue: 'Salt Lake City' },
       trackRecords: {
         'thialf': { time: 67.68, holder: 'Kjeld Nuis', country: 'NED', date: '2023-12-10' },
         'calgary': { time: 66.09, holder: 'Pavel Kulizhnikov', country: 'RUS', date: '2019-12-08' },
-        'salt-lake': { time: 65.36, holder: 'Pavel Kulizhnikov', country: 'RUS', date: '2020-02-15' },
+        'salt-lake': { time: 65.37, holder: 'Jordan Stolz', country: 'USA', date: '2024-01-26' },
         'inzell': { time: 67.56, holder: 'Kjeld Nuis', country: 'NED', date: '2019-02-09' },
         'milano': null // Nieuwe baan OWG 2026
       }
     },
     1500: {
-      worldRecord: { time: 100.07, holder: 'Jordan Stolz', country: 'USA', date: '2024-03-02', venue: 'Calgary' },
-      olympicRecord: { time: 102.98, holder: 'Kjeld Nuis', country: 'NED', date: '2022-02-08', venue: 'Beijing' },
+      worldRecord: { time: 100.17, holder: 'Kjeld Nuis', country: 'NED', date: '2019-03-10', venue: 'Salt Lake City' },
+      olympicRecord: { time: 103.21, holder: 'Kjeld Nuis', country: 'NED', date: '2022-02-08', venue: 'Beijing' },
       trackRecords: {
         'thialf': { time: 102.32, holder: 'Thomas Krol', country: 'NED', date: '2024-12-14' },
         'calgary': { time: 100.07, holder: 'Jordan Stolz', country: 'USA', date: '2024-03-02' },
-        'salt-lake': { time: 100.36, holder: 'Jordan Stolz', country: 'USA', date: '2024-02-03' },
+        'salt-lake': { time: 100.17, holder: 'Kjeld Nuis', country: 'NED', date: '2019-03-10' },
         'inzell': { time: 102.89, holder: 'Kjeld Nuis', country: 'NED', date: '2019-02-10' },
         'milano': null // Nieuwe baan OWG 2026
       }
     },
     3000: {
-      worldRecord: { time: 216.64, holder: 'Nils van der Poel', country: 'SWE', date: '2022-02-06', venue: 'Beijing' },
+      worldRecord: { time: 212.52, holder: 'Metoděj Jílek', country: 'CZE', date: '2025-10-26', venue: 'Salt Lake City' },
       olympicRecord: { time: 216.64, holder: 'Nils van der Poel', country: 'SWE', date: '2022-02-06', venue: 'Beijing' },
       trackRecords: {
-        'thialf': { time: 222.38, holder: 'Patrick Roest', country: 'NED', date: '2023-02-12' },
+        'thialf': { time: 214.09, holder: 'Metoděj Jílek', country: 'CZE', date: '2025-09-16' },
         'calgary': { time: 219.84, holder: 'Nils van der Poel', country: 'SWE', date: '2022-12-11' },
-        'salt-lake': { time: 218.23, holder: 'Nils van der Poel', country: 'SWE', date: '2022-03-05' },
+        'salt-lake': { time: 212.52, holder: 'Metoděj Jílek', country: 'CZE', date: '2025-10-26' },
         'milano': null // Nieuwe baan OWG 2026
       }
     },
     5000: {
-      worldRecord: { time: 359.95, holder: 'Nils van der Poel', country: 'SWE', date: '2022-02-06', venue: 'Beijing' },
-      olympicRecord: { time: 359.95, holder: 'Nils van der Poel', country: 'SWE', date: '2022-02-06', venue: 'Beijing' },
+      worldRecord: { time: 358.52, holder: 'Sander Eitrem', country: 'NOR', date: '2026-01-24', venue: 'Inzell' },
+      olympicRecord: { time: 368.84, holder: 'Nils van der Poel', country: 'SWE', date: '2022-02-06', venue: 'Beijing' },
       trackRecords: {
         'thialf': { time: 367.83, holder: 'Patrick Roest', country: 'NED', date: '2023-02-12' },
         'calgary': { time: 362.82, holder: 'Nils van der Poel', country: 'SWE', date: '2022-12-11' },
-        'salt-lake': { time: 360.62, holder: 'Nils van der Poel', country: 'SWE', date: '2022-03-06' },
+        'salt-lake': { time: 360.23, holder: 'Timothy Loubineaud', country: 'FRA', date: '2025-11-14' },
+        'inzell': { time: 358.52, holder: 'Sander Eitrem', country: 'NOR', date: '2026-01-24' },
         'milano': null // Nieuwe baan OWG 2026
       }
     },
     10000: {
-      worldRecord: { time: 745.36, holder: 'Nils van der Poel', country: 'SWE', date: '2022-02-11', venue: 'Beijing' },
-      olympicRecord: { time: 745.36, holder: 'Nils van der Poel', country: 'SWE', date: '2022-02-11', venue: 'Beijing' },
+      worldRecord: { time: 745.69, holder: 'Davide Ghiotto', country: 'ITA', date: '2025-01-25', venue: 'Calgary' },
+      olympicRecord: { time: 750.74, holder: 'Nils van der Poel', country: 'SWE', date: '2022-02-11', venue: 'Beijing' },
       trackRecords: {
         'thialf': { time: 761.24, holder: 'Patrick Roest', country: 'NED', date: '2024-01-28' },
-        'calgary': { time: 755.41, holder: 'Nils van der Poel', country: 'SWE', date: '2021-12-05' },
+        'calgary': { time: 745.69, holder: 'Davide Ghiotto', country: 'ITA', date: '2025-01-25' },
         'salt-lake': { time: 751.25, holder: 'Graeme Fish', country: 'CAN', date: '2020-02-14' },
+        'inzell': { time: 746.30, holder: 'Davide Ghiotto', country: 'ITA', date: '2024-10-26' },
         'milano': null // Nieuwe baan OWG 2026
       }
     }
   },
 
-  // Women's records
+  // Women's records (updated Feb 2026)
   women: {
     500: {
-      worldRecord: { time: 36.36, holder: 'Nao Kodaira', country: 'JPN', date: '2019-03-10', venue: 'Salt Lake City' },
+      worldRecord: { time: 36.09, holder: 'Femke Kok', country: 'NED', date: '2025-11-16', venue: 'Salt Lake City' },
       olympicRecord: { time: 36.94, holder: 'Nao Kodaira', country: 'JPN', date: '2018-02-18', venue: 'Pyeongchang' },
       trackRecords: {
         'thialf': { time: 36.67, holder: 'Nao Kodaira', country: 'JPN', date: '2019-02-16' },
         'calgary': { time: 36.53, holder: 'Nao Kodaira', country: 'JPN', date: '2019-12-07' },
-        'salt-lake': { time: 36.36, holder: 'Nao Kodaira', country: 'JPN', date: '2019-03-10' },
+        'salt-lake': { time: 36.09, holder: 'Femke Kok', country: 'NED', date: '2025-11-16' },
         'milano': null // Nieuwe baan OWG 2026
       }
     },
     1000: {
-      worldRecord: { time: 71.57, holder: 'Brittany Bowe', country: 'USA', date: '2022-03-05', venue: 'Calgary' },
-      olympicRecord: { time: 73.15, holder: 'Jorien ter Mors', country: 'NED', date: '2014-02-13', venue: 'Sochi' },
+      worldRecord: { time: 71.61, holder: 'Brittany Bowe', country: 'USA', date: '2019-03-09', venue: 'Salt Lake City' },
+      olympicRecord: { time: 73.19, holder: 'Miho Takagi', country: 'JPN', date: '2022-02-17', venue: 'Beijing' },
       trackRecords: {
         'thialf': { time: 72.46, holder: 'Jutta Leerdam', country: 'NED', date: '2024-12-14' },
         'calgary': { time: 71.57, holder: 'Brittany Bowe', country: 'USA', date: '2022-03-05' },
-        'salt-lake': { time: 71.82, holder: 'Brittany Bowe', country: 'USA', date: '2020-02-14' },
+        'salt-lake': { time: 71.61, holder: 'Brittany Bowe', country: 'USA', date: '2019-03-09' },
         'milano': null // Nieuwe baan OWG 2026
       }
     },
     1500: {
-      worldRecord: { time: 108.65, holder: 'Miho Takagi', country: 'JPN', date: '2022-03-06', venue: 'Calgary' },
-      olympicRecord: { time: 111.06, holder: 'Jorien ter Mors', country: 'NED', date: '2018-02-12', venue: 'Pyeongchang' },
+      worldRecord: { time: 109.83, holder: 'Miho Takagi', country: 'JPN', date: '2019-03-10', venue: 'Salt Lake City' },
+      olympicRecord: { time: 113.28, holder: 'Ireen Wüst', country: 'NED', date: '2022-02-07', venue: 'Beijing' },
       trackRecords: {
         'thialf': { time: 110.36, holder: 'Miho Takagi', country: 'JPN', date: '2023-12-09' },
         'calgary': { time: 108.65, holder: 'Miho Takagi', country: 'JPN', date: '2022-03-06' },
-        'salt-lake': { time: 109.58, holder: 'Miho Takagi', country: 'JPN', date: '2022-02-05' },
+        'salt-lake': { time: 109.83, holder: 'Miho Takagi', country: 'JPN', date: '2019-03-10' },
         'milano': null // Nieuwe baan OWG 2026
       }
     },
     3000: {
-      worldRecord: { time: 231.79, holder: 'Martina Sablikova', country: 'CZE', date: '2019-03-09', venue: 'Salt Lake City' },
-      olympicRecord: { time: 233.13, holder: 'Ireen Wust', country: 'NED', date: '2014-02-09', venue: 'Sochi' },
+      worldRecord: { time: 232.02, holder: 'Martina Sáblíková', country: 'CZE', date: '2019-03-09', venue: 'Salt Lake City' },
+      olympicRecord: { time: 236.93, holder: 'Irene Schouten', country: 'NED', date: '2022-02-05', venue: 'Beijing' },
       trackRecords: {
         'thialf': { time: 234.86, holder: 'Joy Beune', country: 'NED', date: '2024-02-10' },
-        'calgary': { time: 232.64, holder: 'Martina Sablikova', country: 'CZE', date: '2019-12-08' },
-        'salt-lake': { time: 231.79, holder: 'Martina Sablikova', country: 'CZE', date: '2019-03-09' },
+        'calgary': { time: 232.64, holder: 'Martina Sáblíková', country: 'CZE', date: '2019-12-08' },
+        'salt-lake': { time: 232.02, holder: 'Martina Sáblíková', country: 'CZE', date: '2019-03-09' },
         'milano': null // Nieuwe baan - record wordt gezet tijdens OWG 2026
       }
     },
     5000: {
-      worldRecord: { time: 389.07, holder: 'Martina Sablikova', country: 'CZE', date: '2020-02-15', venue: 'Salt Lake City' },
-      olympicRecord: { time: 392.34, holder: 'Esmee Visser', country: 'NED', date: '2018-02-16', venue: 'Pyeongchang' },
+      worldRecord: { time: 399.02, holder: 'Natalya Voronina', country: 'RUS', date: '2020-02-15', venue: 'Salt Lake City' },
+      olympicRecord: { time: 403.51, holder: 'Irene Schouten', country: 'NED', date: '2022-02-10', venue: 'Beijing' },
       trackRecords: {
         'thialf': { time: 394.62, holder: 'Joy Beune', country: 'NED', date: '2024-02-11' },
-        'calgary': { time: 390.32, holder: 'Martina Sablikova', country: 'CZE', date: '2019-12-08' },
-        'salt-lake': { time: 389.07, holder: 'Martina Sablikova', country: 'CZE', date: '2020-02-15' },
+        'calgary': { time: 390.32, holder: 'Martina Sáblíková', country: 'CZE', date: '2019-12-08' },
+        'salt-lake': { time: 399.02, holder: 'Natalya Voronina', country: 'RUS', date: '2020-02-15' },
         'milano': null // Nieuwe baan - record wordt gezet tijdens OWG 2026
       }
     }

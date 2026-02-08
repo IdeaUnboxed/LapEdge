@@ -134,19 +134,43 @@ export class ISUResultsAdapter {
   }
 
   transformResults(results, distance, competition, personalBests = new Map()) {
-    // Get the most recent racing pair (last 2 skaters that started)
-    // Results are ordered by rank, so find those still racing or most recent
-    const sortedByStart = [...results].sort((a, b) => b.startNumber - a.startNumber)
+    // Find the currently racing pair:
+    // 1. Skaters with laps but no finalTime are currently racing
+    // 2. If none racing, show the most recently finished pair
     
-    // Get the last pair (highest start numbers)
-    const lastPair = sortedByStart.slice(0, 2)
-    const pairNumber = Math.ceil(sortedByStart[0]?.startNumber / 2) || 1
+    const activeSkaters = results.filter(r => 
+      r.laps && r.laps.length > 0 && !r.time
+    )
+    
+    let currentPair
+    let pairNumber
+    
+    if (activeSkaters.length > 0) {
+      // Get the pair that's currently racing (same startNumber = same pair)
+      const activeStartNumber = activeSkaters[0].startNumber
+      currentPair = results.filter(r => r.startNumber === activeStartNumber)
+      pairNumber = activeStartNumber
+    } else {
+      // All done or waiting - show most recently finished
+      const finishedSkaters = results.filter(r => r.time)
+      if (finishedSkaters.length > 0) {
+        const sortedByStart = [...finishedSkaters].sort((a, b) => b.startNumber - a.startNumber)
+        const lastStartNumber = sortedByStart[0].startNumber
+        currentPair = results.filter(r => r.startNumber === lastStartNumber)
+        pairNumber = lastStartNumber
+      } else {
+        // Nothing started yet
+        const sortedByStart = [...results].sort((a, b) => a.startNumber - b.startNumber)
+        currentPair = sortedByStart.slice(0, 2)
+        pairNumber = 1
+      }
+    }
 
     // Get leader data (rank 1) for comparison
     const leaderResult = results.find(r => r.rank === 1)
     const leaderPassageTimes = leaderResult?.laps?.map(lap => this.parsePassageTime(lap.passageTime)) || []
 
-    const skaters = lastPair.map(result => {
+    const skaters = currentPair.map(result => {
       const skater = result.competitor?.skater || {}
       const laps = result.laps || []
       const skaterId = skater.id || result.id

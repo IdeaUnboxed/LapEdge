@@ -4,7 +4,7 @@ import { calculateVirtualRank, predictFinishTime } from '../utils/calculations'
 
 export function SkaterCard({ skater, distance, reference, standings, distanceConfig, leader }) {
   const virtualRank = calculateVirtualRank(skater, standings)
-  const prediction = distance >= 1500 ? predictFinishTime(skater, distance, distanceConfig) : null
+  const prediction = distance >= 1500 ? predictFinishTime(skater, distance, distanceConfig, leader, standings) : null
 
   return (
     <div className="skater-card">

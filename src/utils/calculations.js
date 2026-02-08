@@ -36,9 +36,9 @@ export function calculateVirtualRank(skater, standings) {
 
 /**
  * Predict finish time based on current laps
- * Uses weighted average favoring recent laps
+ * Uses leader's passage times as reference and analyzes trend in time differences
  */
-export function predictFinishTime(skater, distance, distanceConfig) {
+export function predictFinishTime(skater, distance, distanceConfig, leader = null, standings = null) {
   if (!skater || !skater.laps || skater.laps.length === 0) {
     return null
   }
@@ -53,38 +53,144 @@ export function predictFinishTime(skater, distance, distanceConfig) {
     return {
       time: skater.currentCumulative,
       margin: 0,
-      projectedRank: null
+      projectedRank: skater.rank || null
     }
   }
 
-  // Weight recent laps more heavily
-  let weightedSum = 0
-  let weightTotal = 0
-
-  skater.laps.forEach((lap, index) => {
-    // Exponential weighting: more recent laps have higher weight
-    const weight = Math.pow(1.5, index)
-    weightedSum += lap.time * weight
-    weightTotal += weight
-  })
-
-  const weightedAvgLap = weightedSum / weightTotal
-
-  // Account for opening lap being faster (for distances starting with 100m)
   const remainingLaps = totalLaps - completedLaps
-  const projectedRemaining = weightedAvgLap * remainingLaps
+  
+  let prediction
+  // Method 1: Use leader's passage times as reference (preferred)
+  if (leader?.passageTimes && leader.passageTimes.length >= totalLaps && leader.time) {
+    prediction = predictFromLeader(skater, leader, totalLaps, completedLaps, remainingLaps)
+  } else {
+    // Method 2: Use historical profiles per distance (fallback)
+    prediction = predictFromProfile(skater, distance, totalLaps, completedLaps, remainingLaps)
+  }
+  
+  // Calculate projected rank based on standings
+  if (prediction && standings && standings.length > 0) {
+    prediction.projectedRank = calculateProjectedRank(prediction.time, standings)
+  }
+  
+  return prediction
+}
 
-  const projectedTotal = skater.currentCumulative + projectedRemaining
+/**
+ * Calculate projected rank based on predicted time vs standings
+ */
+function calculateProjectedRank(predictedTime, standings) {
+  if (!standings || standings.length === 0) return null
+  
+  // Count how many finished skaters are faster
+  let rank = 1
+  for (const entry of standings) {
+    if (entry.time && entry.time < predictedTime) {
+      rank++
+    }
+  }
+  
+  return rank
+}
 
-  // Calculate uncertainty based on variance in lap times
-  const lapTimes = skater.laps.map(l => l.time)
-  const variance = calculateVariance(lapTimes)
-  const margin = Math.sqrt(variance * remainingLaps) * 1.5 // 1.5 sigma
-
+/**
+ * Predict using leader's actual passage times
+ * Analyzes the trend in time differences (gaining or losing time?)
+ */
+function predictFromLeader(skater, leader, totalLaps, completedLaps, remainingLaps) {
+  const skaterPassages = skater.passageTimes || skater.laps.map(l => l.cumulative)
+  const leaderPassages = leader.passageTimes
+  
+  // Calculate difference at each passage point
+  const diffs = skaterPassages.map((time, i) => time - leaderPassages[i])
+  
+  // Current difference from leader
+  const currentDiff = diffs[diffs.length - 1]
+  
+  // Analyze trend: is the skater gaining or losing time?
+  let trendPerLap = 0
+  if (diffs.length >= 3) {
+    // Use last 3-5 diffs to calculate trend
+    const recentDiffs = diffs.slice(-Math.min(5, diffs.length))
+    const diffChanges = []
+    for (let i = 1; i < recentDiffs.length; i++) {
+      diffChanges.push(recentDiffs[i] - recentDiffs[i-1])
+    }
+    trendPerLap = diffChanges.reduce((a, b) => a + b, 0) / diffChanges.length
+  } else if (diffs.length >= 2) {
+    trendPerLap = (diffs[diffs.length - 1] - diffs[0]) / (diffs.length - 1)
+  }
+  
+  // Project final difference: current diff + trend * remaining laps
+  // Apply some dampening to the trend (fatigue effects are not linear)
+  const dampenedTrend = trendPerLap * 0.8
+  const projectedFinalDiff = currentDiff + (dampenedTrend * remainingLaps)
+  
+  // Predicted finish time = leader's time + projected difference
+  const projectedTime = leader.time + projectedFinalDiff
+  
+  // Margin based on trend uncertainty and remaining distance
+  const trendVariance = calculateVariance(diffs.slice(1).map((d, i) => d - diffs[i]))
+  const margin = Math.sqrt(Math.max(trendVariance, 0.1) * remainingLaps) * 1.5
+  
   return {
-    time: projectedTotal,
-    margin: margin,
-    projectedRank: null // Could calculate based on standings
+    time: projectedTime,
+    margin: Math.max(margin, 0.5),
+    projectedRank: null,
+    method: 'leader'
+  }
+}
+
+/**
+ * Predict using typical lap profiles per distance (fallback when no leader)
+ * Accounts for typical lap time progression (fatigue)
+ */
+function predictFromProfile(skater, distance, totalLaps, completedLaps, remainingLaps) {
+  // Typical percentage increase per lap due to fatigue
+  // These are approximate and vary by skater/conditions
+  const fatigueProfiles = {
+    1500: { baseIncrease: 0.005, acceleration: 0.002 },  // ~0.5% per lap, accelerating
+    3000: { baseIncrease: 0.004, acceleration: 0.001 },  // ~0.4% per lap
+    5000: { baseIncrease: 0.003, acceleration: 0.0008 }, // ~0.3% per lap
+    10000: { baseIncrease: 0.002, acceleration: 0.0005 } // ~0.2% per lap
+  }
+  
+  const profile = fatigueProfiles[distance] || { baseIncrease: 0.003, acceleration: 0.001 }
+  
+  // Get recent lap times (excluding opening)
+  const normalLaps = skater.laps.slice(1)
+  if (normalLaps.length === 0) {
+    // Only opening lap - rough estimate
+    const estimatedNormalLap = skater.laps[0].time * 1.55
+    return {
+      time: skater.currentCumulative + estimatedNormalLap * remainingLaps * 1.02,
+      margin: remainingLaps * 0.5,
+      projectedRank: null,
+      method: 'estimate'
+    }
+  }
+  
+  // Use most recent lap as base, then apply fatigue model
+  const lastLapTime = normalLaps[normalLaps.length - 1].time
+  
+  let projectedRemaining = 0
+  for (let i = 0; i < remainingLaps; i++) {
+    const lapNumber = completedLaps + i + 1
+    const fatigueMultiplier = 1 + profile.baseIncrease + (profile.acceleration * (lapNumber - 2))
+    projectedRemaining += lastLapTime * fatigueMultiplier
+  }
+  
+  const projectedTime = skater.currentCumulative + projectedRemaining
+  
+  // Calculate margin from variance in recent laps
+  const variance = calculateVariance(normalLaps.map(l => l.time))
+  const margin = Math.sqrt(Math.max(variance, 0.3) * remainingLaps) * 1.5
+  
+  return {
+    time: projectedTime,
+    margin: Math.max(margin, 0.5),
+    projectedRank: null,
+    method: 'profile'
   }
 }
 
@@ -101,15 +207,17 @@ function calculateVariance(values) {
 
 /**
  * Get total laps for a distance
+ * Note: These are passage counts (times crossing finish line)
+ * First passage is ~100m opening, rest are 400m laps
  */
 function getTotalLaps(distance) {
   const lapsMap = {
-    500: 1,
-    1000: 2.5,
-    1500: 3.75,
-    3000: 7.5,
-    5000: 12.5,
-    10000: 25
+    500: 2,      // 100m + 400m
+    1000: 3,     // 100m + 2x400m + 100m (3 passages)
+    1500: 4,     // 100m + 3x400m + 100m (4 passages)
+    3000: 8,     // 100m + 7x400m + 100m (8 passages)
+    5000: 13,    // 100m + 12x400m + 100m (13 passages)
+    10000: 25    // 100m + 24x400m + 100m (25 passages)
   }
   return lapsMap[distance] || 1
 }
