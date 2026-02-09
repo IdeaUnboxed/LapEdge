@@ -189,7 +189,7 @@ export function RaceView({
         ))}
       </div>
 
-      {distance >= 1500 && currentRace.skaters && (
+      {distance >= 1000 && currentRace.skaters && (
         <RaceChart
           skaters={currentRace.skaters}
           standings={standings?.standings}
