@@ -5,6 +5,37 @@ Alle belangrijke wijzigingen in dit project worden gedocumenteerd in dit bestand
 Het formaat is gebaseerd op [Keep a Changelog](https://keepachangelog.com/nl/1.0.0/),
 en dit project volgt [Semantic Versioning](https://semver.org/lang/nl/).
 
+## [1.2.0] - 2025-02-20
+
+### Toegevoegd
+- **Meerkamp (All-Around) Extensie - Fase 1**
+  - Event type detectie (allround, sprint, distances)
+  - Meerkamp afstanden configuratie in correcte volgorde per type
+  - Samalog puntenberekening (p = tijd(s) / afstand(km))
+  - Cumulatief meerkamp klassement over meerdere afstanden
+  - MeerkampStandingsPanel component met live standings
+  - Toggle tussen individuele afstand en meerkamp klassement
+  - Tijdsdoel berekeningen per rijder (tijd nodig om #1 te worden)
+  - Referentie-selectie (virtuele #1 of specifieke concurrent)
+  - Kleurgecodeerde moeilijkheidsgraad voor tijdsdoelen
+  - Weergave van gereden en resterende afstanden
+  - API endpoints:
+    - `GET /api/events/:eventId/meerkamp-distances`
+    - `GET /api/meerkamp/:eventId/standings`
+  - Historische standings ondersteuning (?afterDistance parameter)
+  - DNF/DNS handling in meerkamp klassement
+
+### Gewijzigd
+- EventsConfig en isuEvents voegen nu eventType toe aan alle events
+- App.jsx automatisch enable meerkamp modus voor allround/sprint events
+
+### Technisch
+- server/utils/samalog.js - Samalog berekeningen backend
+- server/services/meerkampStandings.js - Tussenstand service
+- src/utils/samalog.js - Samalog utilities frontend
+- src/components/MeerkampStandingsPanel.jsx - Meerkamp UI
+- Uitgebreide CSS styling voor meerkamp componenten
+
 ## [1.0.0] - 2025-02-20
 
 ### Toegevoegd
