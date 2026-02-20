@@ -4,6 +4,7 @@ import { LiveDataService } from './services/liveData.js'
 import { RecordsService } from './services/records.js'
 import { EventsConfig } from './config/events.js'
 import { DistanceRecords } from './config/records.js'
+import { fetchAndMergeIsuEvents } from './services/isuEvents.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -14,9 +15,15 @@ app.use(express.json())
 const liveDataService = new LiveDataService()
 const recordsService = new RecordsService()
 
-// Get available events/competitions
-app.get('/api/events', (req, res) => {
-  res.json(EventsConfig.getActiveEvents())
+// Get available events: config + komende evenementen van ISU (live.isuresults.eu)
+app.get('/api/events', async (req, res) => {
+  try {
+    const events = await fetchAndMergeIsuEvents()
+    res.json(events)
+  } catch (error) {
+    console.error('Error fetching events:', error.message)
+    res.json(EventsConfig.getActiveEvents())
+  }
 })
 
 // Get distances for an event

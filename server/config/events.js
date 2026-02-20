@@ -1,5 +1,9 @@
-// Event configuration for speed skating competitions
+// Event configuration for speed skating competitions.
+// Zie README.md sectie "Wedstrijden toevoegen" voor uitleg en velden.
+// ISU-events van api.isuresults.eu worden bij /api/events opgehaald en in isuEventCache gezet.
 export const EventsConfig = {
+  isuEventCache: new Map(),
+
   events: [
     {
       id: 'owg-milano-2026',
@@ -89,8 +93,15 @@ export const EventsConfig = {
     })
   },
 
+  registerIsuEvents(events) {
+    this.isuEventCache.clear()
+    for (const e of events || []) {
+      if (e?.id) this.isuEventCache.set(e.id, e)
+    }
+  },
+
   getEvent(eventId) {
-    return this.events.find(e => e.id === eventId)
+    return this.events.find(e => e.id === eventId) ?? this.isuEventCache.get(eventId) ?? null
   },
 
   getDistances(eventId) {

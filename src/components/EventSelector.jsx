@@ -74,26 +74,40 @@ export function EventSelector({ selectedEvent, onSelect }) {
     )
   }
 
+  function handleChange(e) {
+    const value = e.target.value
+    if (!value) {
+      onSelect(null)
+      return
+    }
+    const event = events.find(ev => ev.id === value)
+    if (event) onSelect(event)
+  }
+
   return (
     <div className="panel">
       <div className="panel-header">
-        <span className="panel-title">Wedstrijden</span>
+        <span className="panel-title">Wedstrijd</span>
       </div>
-
-      <div className="event-list">
-        {events.map(event => (
-          <button
-            key={event.id}
-            className={`event-item ${selectedEvent?.id === event.id ? 'active' : ''}`}
-            onClick={() => onSelect(event)}
-          >
-            <div className="event-info">
-              <div className="event-name">{event.name}</div>
-              <div className="event-location">{event.location}</div>
-              <div className="event-date">{formatDate(event.startDate, event.endDate)}</div>
-            </div>
-          </button>
-        ))}
+      <div className="event-select-wrap">
+        <select
+          className="event-select"
+          value={selectedEvent?.id ?? ''}
+          onChange={handleChange}
+          aria-label="Selecteer een wedstrijd"
+        >
+          <option value="">Selecteer wedstrijd...</option>
+          {events.map(event => (
+            <option key={event.id} value={event.id}>
+              {event.name} — {formatDate(event.startDate, event.endDate)}
+            </option>
+          ))}
+        </select>
+        {selectedEvent && (
+          <div className="event-select-meta">
+            {selectedEvent.location}
+          </div>
+        )}
       </div>
     </div>
   )

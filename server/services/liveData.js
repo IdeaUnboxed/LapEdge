@@ -2,6 +2,8 @@ import { ISUResultsAdapter } from '../adapters/isuresults.js'
 import { SchaatsenNLAdapter } from '../adapters/schaatsenNL.js'
 import { EventsConfig } from '../config/events.js'
 
+const PROVIDER_TIMEOUT_MS = 20000 // Hard cap so we never hang on a slow provider
+
 export class LiveDataService {
   constructor() {
     this.adapters = {
@@ -10,6 +12,19 @@ export class LiveDataService {
     }
     this.cache = new Map()
     this.cacheTimeout = 5000 // 5 seconds cache to reduce ISU server load
+  }
+
+  async withProviderTimeout(promise, fallback) {
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('PROVIDER_TIMEOUT')), PROVIDER_TIMEOUT_MS)
+    )
+    return Promise.race([promise, timeout]).catch(err => {
+      if (err.message === 'PROVIDER_TIMEOUT') {
+        console.warn('[LiveData] Provider timeout, returning waiting state')
+        return fallback()
+      }
+      throw err
+    })
   }
 
   getAdapter(eventId) {
@@ -52,7 +67,10 @@ export class LiveDataService {
     const event = EventsConfig.getEvent(eventId)
     const distanceConfig = EventsConfig.getDistanceConfig(distance)
 
-    const data = await adapter.fetchRaceData(event, distance, gender)
+    const data = await this.withProviderTimeout(
+      adapter.fetchRaceData(event, distance, gender),
+      () => adapter.getWaitingData(event, distance)
+    )
 
     // Normalize and enrich data
     const normalized = this.normalizeRaceData(data, distanceConfig)
@@ -69,7 +87,10 @@ export class LiveDataService {
     const adapter = this.getAdapter(eventId)
     const event = EventsConfig.getEvent(eventId)
 
-    const standings = await adapter.fetchStandings(event, distance, gender)
+    const standings = await this.withProviderTimeout(
+      adapter.fetchStandings(event, distance, gender),
+      () => ({ distance, standings: [] })
+    )
     this.setCache(cacheKey, standings)
 
     return standings
@@ -121,9 +142,10 @@ export class LiveDataService {
     }
 
     return {
-      status: currentRace.status || 'racing',
+      status: data.status || currentRace.status || 'racing',
       currentRace,
       distanceConfig,
+      reskates: data.reskates || [],
       timestamp: Date.now()
     }
   }

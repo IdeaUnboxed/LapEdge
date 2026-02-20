@@ -1,5 +1,6 @@
 import React from 'react'
 import { SkaterCard } from './SkaterCard'
+import { FastestRunCard } from './FastestRunCard'
 import { RaceChart } from './RaceChart'
 import { RecordTimesPanel } from './RecordTimesPanel'
 import { Countdown } from './Countdown'
@@ -126,10 +127,19 @@ export function RaceView({
     )
   }
 
-  const { currentRace } = raceData
+  const { currentRace, reskates } = raceData
 
   return (
     <div className="race-view">
+      {reskates?.length > 0 && (
+        <div className="reskate-banner" role="status">
+          <span className="reskate-icon">🔄</span>
+          <span>
+            {reskates.map(r => `${r.name} (${r.country})`).join(', ')} overrijd
+            {reskates.length === 1 ? 't' : 'en'} (slachtoffer van verkeerde kruizing)
+          </span>
+        </div>
+      )}
       <div className="race-header">
         <div className="race-info">
           <h2>{distance}m</h2>
@@ -175,7 +185,9 @@ export function RaceView({
         isOlympicEvent={distanceRecords?.isOlympicEvent}
       />
 
-      <div className="skaters-grid">
+      <div
+        className={`skaters-grid ${currentRace.leader?.passageTimes?.length ? 'skaters-grid--three' : ''}`}
+      >
         {currentRace.skaters?.map((skater, index) => (
           <SkaterCard
             key={skater.id || index}
@@ -187,6 +199,7 @@ export function RaceView({
             leader={currentRace.leader}
           />
         ))}
+        <FastestRunCard leader={currentRace.leader} />
       </div>
 
       {distance >= 1000 && currentRace.skaters && (

@@ -1,5 +1,36 @@
 import fetch from 'node-fetch'
 
+const FETCH_TIMEOUT_MS = 15000
+const RETRY_DELAY_MS = 1000
+const RETRY_ATTEMPTS = 3
+
+/**
+ * Fetch with AbortController-based timeout (node-fetch v3 ignores timeout option).
+ */
+async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal })
+    clearTimeout(timeoutId)
+    return response
+  } catch (err) {
+    clearTimeout(timeoutId)
+    throw err
+  }
+}
+
+/**
+ * Format error for logging (node-fetch wraps system errors; reason can be empty).
+ */
+function formatFetchError(err) {
+  const parts = [err.message]
+  if (err.code) parts.push(`code=${err.code}`)
+  if (err.cause?.message) parts.push(`cause=${err.cause.message}`)
+  if (err.cause?.code) parts.push(`causeCode=${err.cause.code}`)
+  return parts.join(' ')
+}
+
 /**
  * ISU Results API Adapter
  * Uses the official api.isuresults.eu API
@@ -9,6 +40,7 @@ export class ISUResultsAdapter {
     this.apiBase = 'https://api.isuresults.eu'
     this.competitionsCache = new Map()
     this.competitionsCacheTime = 60000 // 1 minute cache for competitions list
+    this.competitionsInFlight = new Map() // coalesce concurrent requests
   }
 
   async getCompetitions(eventId) {
@@ -18,19 +50,42 @@ export class ISUResultsAdapter {
       return cached.data
     }
 
+    // Request coalescing: reuse in-flight promise
+    let inFlight = this.competitionsInFlight.get(cacheKey)
+    if (inFlight) return inFlight
+
     const url = `${this.apiBase}/events/${eventId}/competitions/`
-    const response = await fetch(url, {
-      headers: { 'Accept': 'application/json' },
-      timeout: 10000
-    })
+    const promise = this._fetchCompetitionsWithRetry(url, cacheKey)
+    this.competitionsInFlight.set(cacheKey, promise)
+    promise.finally(() => this.competitionsInFlight.delete(cacheKey))
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch competitions: ${response.status}`)
+    return promise
+  }
+
+  async _fetchCompetitionsWithRetry(url, cacheKey) {
+    let lastErr
+    for (let attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
+      try {
+        const response = await fetchWithTimeout(url, {
+          headers: { 'Accept': 'application/json' }
+        })
+        if (!response.ok) {
+          throw new Error(`Failed to fetch competitions: ${response.status}`)
+        }
+        const data = await response.json()
+        this.competitionsCache.set(cacheKey, { data, time: Date.now() })
+        return data
+      } catch (err) {
+        lastErr = err
+        const isRetriable = err.name === 'AbortError' || err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT' || err.code === 'ENOTFOUND'
+        if (attempt < RETRY_ATTEMPTS && isRetriable) {
+          await new Promise(r => setTimeout(r, RETRY_DELAY_MS * attempt))
+        } else {
+          throw lastErr
+        }
+      }
     }
-
-    const data = await response.json()
-    this.competitionsCache.set(cacheKey, { data, time: Date.now() })
-    return data
+    throw lastErr
   }
 
   findCompetition(competitions, distance, gender = 'F') {
@@ -89,9 +144,8 @@ export class ISUResultsAdapter {
 
       // Fetch results
       const resultsUrl = competition.resultsUrl
-      const response = await fetch(resultsUrl, {
-        headers: { 'Accept': 'application/json' },
-        timeout: 10000
+      const response = await fetchWithTimeout(resultsUrl, {
+        headers: { 'Accept': 'application/json' }
       })
 
       if (!response.ok) {
@@ -109,10 +163,9 @@ export class ISUResultsAdapter {
       let personalBests = new Map()
       if (competition.personalBestsUrl) {
         try {
-          const pbResponse = await fetch(competition.personalBestsUrl, {
-            headers: { 'Accept': 'application/json' },
-            timeout: 5000
-          })
+          const pbResponse = await fetchWithTimeout(competition.personalBestsUrl, {
+            headers: { 'Accept': 'application/json' }
+          }, 5000)
           if (pbResponse.ok) {
             const pbData = await pbResponse.json()
             pbData.forEach(pb => {
@@ -128,26 +181,32 @@ export class ISUResultsAdapter {
       return this.transformResults(results, distance, competition, personalBests)
 
     } catch (error) {
-      console.log(`[ISU API] Error: ${error.message}`)
+      console.log(`[ISU API] Error: ${formatFetchError(error)}`)
       return this.getWaitingData(event, distance)
     }
   }
 
+  // Minimum passage/split count per distance (ISU 1500m often has 4 splits; API may return 3)
+  static LAP_COUNT_MIN = { 500: 1, 1000: 2, 1500: 4, 3000: 7, 5000: 12, 10000: 25 }
+
   transformResults(results, distance, competition, personalBests = new Map()) {
     // Find the currently racing pair:
-    // 1. Skaters with laps but no finalTime are currently racing
-    // 2. If none racing, show the most recently finished pair
-    
-    const activeSkaters = results.filter(r => 
-      r.laps && r.laps.length > 0 && !r.time
+    // 1. Skaters with laps but no finalTime AND incomplete laps = currently racing
+    // 2. DNFs have all laps but no time (status 2) - exclude them
+    // 3. If none racing, show the most recently finished pair
+    const apiLaps = competition.distance?.lapCount
+    const minLaps = ISUResultsAdapter.LAP_COUNT_MIN[distance]
+    const totalLaps = Math.max(apiLaps ?? 0, minLaps ?? 3) || 3
+    const activeSkaters = results.filter(r =>
+      r.laps && r.laps.length > 0 && !r.time && r.laps.length < totalLaps
     )
     
     let currentPair
     let pairNumber
     
     if (activeSkaters.length > 0) {
-      // Get the pair that's currently racing (same startNumber = same pair)
-      const activeStartNumber = activeSkaters[0].startNumber
+      // Use the pair with the highest startNumber that is racing (avoid sticking on an earlier heat)
+      const activeStartNumber = Math.max(...activeSkaters.map(r => r.startNumber))
       currentPair = results.filter(r => r.startNumber === activeStartNumber)
       pairNumber = activeStartNumber
     } else {
@@ -223,8 +282,21 @@ export class ISUResultsAdapter {
         }
       })
 
+    // Skaters granted a reskate (victim of wrong crossing, etc.)
+    const reskates = results
+      .filter(r => r.reskate === 1)
+      .map(r => {
+        const sk = r.competitor?.skater || {}
+        return {
+          name: `${sk.firstName || ''} ${sk.lastName || ''}`.trim(),
+          country: sk.country || 'UNK'
+        }
+      })
+      .filter(r => r.name)
+
     return {
       status: competition.isLive ? 'racing' : 'finished',
+      reskates: [...new Map(reskates.map(r => [r.name, r])).values()],
       currentRace: {
         pairNumber: pairNumber,
         status: competition.isLive ? 'in_progress' : 'finished',
@@ -269,9 +341,8 @@ export class ISUResultsAdapter {
         return { distance, standings: [] }
       }
 
-      const response = await fetch(competition.resultsUrl, {
-        headers: { 'Accept': 'application/json' },
-        timeout: 10000
+      const response = await fetchWithTimeout(competition.resultsUrl, {
+        headers: { 'Accept': 'application/json' }
       })
 
       if (!response.ok) {
@@ -298,7 +369,7 @@ export class ISUResultsAdapter {
       return { distance, standings }
 
     } catch (error) {
-      console.log(`[ISU API] Standings error: ${error.message}`)
+      console.log(`[ISU API] Standings error: ${formatFetchError(error)}`)
       return { distance, standings: [] }
     }
   }
