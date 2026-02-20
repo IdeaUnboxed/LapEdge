@@ -15,7 +15,7 @@ function normalizeIsuEvent(apiEvent) {
     ? `${track.name}, ${track.city}`
     : track.name || track.city || '–'
   const isOlympic = Array.isArray(apiEvent.tags) && apiEvent.tags.includes('olympic')
-  return {
+  const event = {
     id: apiEvent.isuId,
     name: apiEvent.name,
     location,
@@ -28,6 +28,9 @@ function normalizeIsuEvent(apiEvent) {
     timezone: track.timeZone || 'UTC',
     isOlympic
   }
+  // Add eventType
+  event.eventType = EventsConfig.getEventType(event)
+  return event
 }
 
 async function fetchSeason(season) {
@@ -72,7 +75,10 @@ export async function fetchAndMergeIsuEvents() {
 
   EventsConfig.registerIsuEvents(deduped)
 
-  const configEvents = EventsConfig.getActiveEvents()
+  const configEvents = EventsConfig.getActiveEvents().map(event => ({
+    ...event,
+    eventType: EventsConfig.getEventType(event)
+  }))
   const configIsuIds = new Set(
     configEvents.map(e => e.isuEventId).filter(Boolean)
   )

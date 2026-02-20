@@ -75,6 +75,18 @@ export const EventsConfig = {
     all: [500, 1000, 1500, 3000, 5000, 10000]
   },
 
+  // Meerkamp distances in correct order
+  meerkampDistances: {
+    allround: {
+      men: [500, 5000, 1500, 10000],
+      women: [500, 3000, 1500, 5000]
+    },
+    sprint: {
+      men: [500, 1000, 500, 1000],
+      women: [500, 1000, 500, 1000]
+    }
+  },
+
   distanceConfig: {
     500: { laps: 1, innerStart: true, name: '500m' },
     1000: { laps: 2.5, innerStart: false, name: '1000m' },
@@ -104,17 +116,32 @@ export const EventsConfig = {
     return this.events.find(e => e.id === eventId) ?? this.isuEventCache.get(eventId) ?? null
   },
 
+  getEventType(event) {
+    if (!event) return 'distances'
+    const name = event.name.toLowerCase()
+    if (name.includes('allround')) return 'allround'
+    if (name.includes('sprint')) return 'sprint'
+    return 'distances'
+  },
+
   getDistances(eventId) {
     const event = this.getEvent(eventId)
     if (!event) return this.distances.all
 
-    if (event.name.toLowerCase().includes('sprint')) {
-      return this.distances.sprint
-    }
-    if (event.name.toLowerCase().includes('allround')) {
-      return this.distances.allround
-    }
+    const eventType = this.getEventType(event)
+    if (eventType === 'sprint') return this.distances.sprint
+    if (eventType === 'allround') return this.distances.allround
     return this.distances.all
+  },
+
+  getMeerkampDistances(eventId, gender = 'men') {
+    const event = this.getEvent(eventId)
+    if (!event) return null
+
+    const eventType = this.getEventType(event)
+    if (eventType === 'distances') return null
+
+    return this.meerkampDistances[eventType]?.[gender] || null
   },
 
   getDistanceConfig(distance) {

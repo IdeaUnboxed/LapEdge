@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { LiveDataService } from './services/liveData.js'
 import { RecordsService } from './services/records.js'
+import { MeerkampStandingsService } from './services/meerkampStandings.js'
 import { EventsConfig } from './config/events.js'
 import { DistanceRecords } from './config/records.js'
 import { fetchAndMergeIsuEvents } from './services/isuEvents.js'
@@ -14,6 +15,7 @@ app.use(express.json())
 
 const liveDataService = new LiveDataService()
 const recordsService = new RecordsService()
+const meerkampStandingsService = new MeerkampStandingsService()
 
 // Get available events: config + komende evenementen van ISU (live.isuresults.eu)
 app.get('/api/events', async (req, res) => {
@@ -30,6 +32,24 @@ app.get('/api/events', async (req, res) => {
 app.get('/api/events/:eventId/distances', (req, res) => {
   const distances = EventsConfig.getDistances(req.params.eventId)
   res.json(distances)
+})
+
+// Get meerkamp distances for an event (allround/sprint only)
+app.get('/api/events/:eventId/meerkamp-distances', (req, res) => {
+  const { eventId } = req.params
+  const { gender = 'men' } = req.query
+
+  const distances = EventsConfig.getMeerkampDistances(eventId, gender)
+
+  if (!distances) {
+    return res.status(404).json({
+      error: 'No meerkamp distances for this event',
+      eventId,
+      message: 'This endpoint only works for allround and sprint events'
+    })
+  }
+
+  res.json({ distances })
 })
 
 // Get live race data for a specific event/distance
@@ -122,21 +142,49 @@ app.get('/api/distance-records/:eventId/:distance', (req, res) => {
   }
 })
 
+// Get meerkamp standings for an event
+app.get('/api/meerkamp/:eventId/standings', async (req, res) => {
+  try {
+    const { eventId } = req.params
+    const { gender = 'men', afterDistance } = req.query
+
+    const standings = await meerkampStandingsService.getStandings(
+      eventId,
+      gender,
+      afterDistance ? parseInt(afterDistance) : null
+    )
+
+    res.json(standings)
+  } catch (error) {
+    console.error('Error fetching meerkamp standings:', error.message)
+    res.status(500).json({
+      error: 'Failed to fetch meerkamp standings',
+      message: error.message
+    })
+  }
+})
+
 // Clear caches and force refresh
 app.post('/api/refresh', (req, res) => {
   try {
     const { type } = req.body || {}
-    
+
     if (type === 'records' || !type) {
       // Clear skater records cache
       recordsService.cache.clear()
       console.log('Records cache cleared')
     }
-    
+
     if (type === 'live' || !type) {
       // Clear live data cache
       liveDataService.cache.clear()
       console.log('Live data cache cleared')
+    }
+
+    if (type === 'meerkamp' || !type) {
+      // Clear meerkamp cache
+      meerkampStandingsService.clearCache()
+      console.log('Meerkamp cache cleared')
     }
     
     res.json({ 

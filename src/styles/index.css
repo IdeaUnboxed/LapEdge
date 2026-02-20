@@ -1173,3 +1173,241 @@ html, body {
     padding: 6px 4px;
   }
 }
+
+/* Meerkamp Components */
+.meerkamp-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background: var(--surface-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.meerkamp-toggle button {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.meerkamp-toggle button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--primary-color);
+}
+
+.meerkamp-toggle button.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.meerkamp-panel {
+  background: var(--surface-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.meerkamp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.meerkamp-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.meerkamp-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.event-type {
+  padding: 0.25rem 0.75rem;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.current-distance {
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.meerkamp-panel .reference-selector {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.meerkamp-panel .reference-selector label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.meerkamp-panel .reference-selector select {
+  padding: 0.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.standings-table {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.standings-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.standings-table th,
+.standings-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.standings-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.standings-table td {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.standings-table tr.leader td {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.standings-table tr.dnf td {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.standings-table .rank {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.standings-table .name {
+  font-weight: 600;
+}
+
+.standings-table .points,
+.standings-table .points-virtual {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+.standings-table .gap {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.standings-table .time-goal {
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.standings-table .goal-easy {
+  color: #4caf50;
+}
+
+.standings-table .goal-doable {
+  color: #8bc34a;
+}
+
+.standings-table .goal-tight {
+  color: #ffc107;
+}
+
+.standings-table .goal-difficult {
+  color: #f44336;
+}
+
+.remaining-distances,
+.completed-distances {
+  margin-bottom: 1rem;
+}
+
+.remaining-distances h4,
+.completed-distances h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.distances-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.distance-badge {
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.distance-badge.completed {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+  color: #4caf50;
+}
+
+.last-updated {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: right;
+}
