@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { formatPoints, formatPointsGap, timeNeededToLead } from '../utils/samalog'
-import { formatTime, formatTimeDiff } from '../utils/timeFormat'
+import { formatTime } from '../utils/timeFormat'
+
+// Helper to format time difference in milliseconds
+function formatTimeDiff(timeMs) {
+  if (timeMs === null || timeMs === undefined) return '–'
+  const timeSec = timeMs / 1000
+  const prefix = timeSec >= 0 ? '+' : ''
+  return `${prefix}${timeSec.toFixed(2)}s`
+}
 
 export function MeerkampStandingsPanel({ eventId, gender, updateInterval = 5000 }) {
   const [standings, setStandings] = useState(null)
