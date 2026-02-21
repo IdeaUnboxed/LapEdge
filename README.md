@@ -2,6 +2,9 @@
 
 Second-screen webapp voor langebaan schaatsfans met live rondetijden, virtuele klassering, eindtijdvoorspellingen en race-analyse.
 
+<img width="2505" height="1389" alt="image" src="https://github.com/user-attachments/assets/4b268cc7-1d9b-474a-a047-a67f3414b42e" />
+
+
 ## Over LapEdge
 
 LapEdge is een webapp die schaatsfans realtime inzicht geeft in wedstrijden door:
